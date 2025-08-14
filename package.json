@@ -1,0 +1,106 @@
+{
+  "name": "brainpipe",
+  "title": "Brainpipe",
+  "description": "Sync actionable to-dos from markdown brain dump files to Notion",
+  "icon": "brain.png",
+  "author": "omarelamin",
+  "categories": [
+    "Productivity"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "runner-hourly",
+      "title": "Extract & Sync (Hourly)",
+      "subtitle": "Background sync of brain dump files",
+      "description": "Runs hourly in background to extract tasks from markdown files and sync to Notion",
+      "mode": "no-view",
+      "interval": "1h"
+    },
+    {
+      "name": "runner-manual",
+      "title": "Extract & Sync (Run Now)",
+      "subtitle": "Manual sync trigger",
+      "description": "Manually trigger extraction and sync of brain dump files to Notion",
+      "mode": "no-view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "inboxDir",
+      "title": "Brain Dump Directory",
+      "description": "Directory path containing markdown brain dump files",
+      "type": "textfield",
+      "default": "~/BrainDump/inbox",
+      "required": true
+    },
+    {
+      "name": "openaiKey",
+      "title": "OpenAI API Key",
+      "description": "Your OpenAI API key for task extraction",
+      "type": "password",
+      "required": true
+    },
+    {
+      "name": "openaiModel",
+      "title": "OpenAI Model",
+      "description": "OpenAI model to use for task extraction",
+      "type": "textfield",
+      "default": "gpt-4o",
+      "required": true
+    },
+    {
+      "name": "notionToken",
+      "title": "Notion Integration Token",
+      "description": "Your Notion integration token",
+      "type": "password",
+      "required": true
+    },
+    {
+      "name": "notionDbId",
+      "title": "Notion Database ID",
+      "description": "The ID of the Notion database to sync tasks to",
+      "type": "textfield",
+      "required": true
+    },
+    {
+      "name": "enableScheduled",
+      "title": "Enable Hourly Background Sync",
+      "description": "Enable automatic hourly background synchronisation",
+      "type": "checkbox",
+      "default": true,
+      "required": false
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.83.1",
+    "@raycast/utils": "^1.17.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/jest": "^29.5.12",
+    "@types/node": "20.8.10",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "prepublishOnly": "echo \"Preparing for publish...\" && npm run build",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": ["**/__tests__/**/*.test.ts"],
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.d.ts"
+    ]
+  }
+}
