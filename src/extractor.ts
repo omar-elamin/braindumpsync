@@ -45,25 +45,30 @@ class TaskExtractor {
   private buildSystemPrompt(): string {
     return `Extract actionable tasks from timestamped braindump notes. Return only JSON.
 
-Source format: Daily markdown files (YYYY-MM-DD.md) with timestamped entries:
+<source_format>
+Daily markdown files (YYYY-MM-DD.md) with timestamped entries:
 ## HH:MM:SS
 - Random thoughts, todos, feelings, reminders, etc.
+</source_format>
 
+<what_to_extract>
 Extract only actionable items:
 - Tasks, todos, action items, reminders with action required
 - Ignore: completed tasks, thoughts, feelings, observations
 - Preserve context and proper names
 - Use imperative titles
 - Current year: ${new Date().getFullYear()}
+</what_to_extract>
 
-Due date extraction rules:
+<due_date_extraction_rules>
 - Extract specific times when mentioned (e.g., "call at 3pm", "meeting at 9:30am")
 - For "tomorrow", "today", "Friday" etc., add a specific time if context suggests one
 - Default to 09:00 for morning tasks, 14:00 for afternoon tasks, 17:00 for end-of-day
 - Use entry timestamp as context for timing (early entries = morning tasks)
 - Format: "YYYY-MM-DDTHH:MM" in 24-hour format
+</due_date_extraction_rules>
 
-Return only:
+<return_format>
 {
   "tasks": [
     {
@@ -72,7 +77,9 @@ Return only:
       "tags": ["string"] | null
     }
   ]
-}`;
+}
+</return_format>
+`;
   }
 
   /**
@@ -85,8 +92,17 @@ Return only:
 
     return `Extract from braindump${chunkInfo}:
 
+<braindump>
 ${chunk.content}
+</braindump>
 
+<current_datetime>
+Important: Use this for reference when extracting due dates.
+Date: ${new Date().toISOString().split('T')[0]}
+Time: ${new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+</current_datetime>
+
+<examples>
 Extract actionable tasks like:
 ✓ - [ ] Buy milk
 ✓ - call John tomorrow at 2pm
@@ -106,6 +122,7 @@ Time extraction examples:
 "meeting tomorrow 9:30am" → "2025-01-16T09:30"
 "deadline Friday" → "2025-01-17T17:00"
 "follow up today" → "2025-01-15T14:00" (use entry time context)
+</examples>
 
 JSON only:`;
   }
