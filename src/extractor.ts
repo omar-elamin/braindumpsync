@@ -79,7 +79,7 @@ Return only:
    * Build user prompt with file content
    */
   private buildUserPrompt(chunk: FileChunk): string {
-    const chunkInfo = chunk.totalChunks > 1 
+    const chunkInfo = chunk.totalChunks > 1
       ? ` (chunk ${chunk.chunkIndex + 1}/${chunk.totalChunks})`
       : "";
 
@@ -115,14 +115,14 @@ JSON only:`;
    */
   private normaliseDate(dateStr: string): string | null {
     if (!dateStr) return null;
-    
+
     const currentYear = new Date().getFullYear();
-    
+
     // Already in YYYY-MM-DD format
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
       return dateStr;
     }
-    
+
     // DD/MM or DD/M format
     const ddmmMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})$/);
     if (ddmmMatch) {
@@ -130,7 +130,7 @@ JSON only:`;
       const month = ddmmMatch[2].padStart(2, '0');
       return `${currentYear}-${month}-${day}`;
     }
-    
+
     return null;
   }
 
@@ -181,13 +181,23 @@ JSON only:`;
           { role: "user", content: userPrompt },
         ],
         max_completion_tokens: 1500,
+        text: {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        reasoning: {
+          "effort": "medium",
+          "summary": "auto"
+        },
       }),
     });
 
     if (!response.ok) {
       const errorBody = await response.text();
       let errorMessage = `HTTP ${response.status}`;
-      
+
       try {
         const errorJson = JSON.parse(errorBody) as OpenAIError;
         errorMessage = errorJson.error?.message || errorMessage;
@@ -208,7 +218,7 @@ JSON only:`;
     }
 
     const data = await response.json() as OpenAIResponse;
-    
+
     if (!data.choices || data.choices.length === 0) {
       throw new Error("No response from OpenAI API");
     }
@@ -291,7 +301,7 @@ Do not include any text before or after the JSON object.`;
       });
 
       const responseContent = await this.callOpenAI(apiKey, model, systemPrompt, userPrompt);
-      
+
       logger.debug("Received response from OpenAI", {
         file: chunk.filePath,
         responseLength: responseContent.length,
@@ -359,18 +369,18 @@ Do not include any text before or after the JSON object.`;
     });
 
     const results: ExtractionResult[] = [];
-    
+
     // Process chunks in batches to avoid overwhelming the API
     for (let i = 0; i < chunks.length; i += maxConcurrency) {
       const batch = chunks.slice(i, i + maxConcurrency);
-      
-      const batchPromises = batch.map(chunk => 
+
+      const batchPromises = batch.map(chunk =>
         this.extractTasks(chunk, apiKey, model)
       );
-      
+
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
-      
+
       // Small delay between batches to be respectful to the API
       if (i + maxConcurrency < chunks.length) {
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -393,7 +403,7 @@ Do not include any text before or after the JSON object.`;
   async healthCheck(apiKey: string, model: string): Promise<{ healthy: boolean; message: string }> {
     try {
       const testPrompt = "Return only this JSON: {\"test\": true}";
-      
+
       const response = await this.callOpenAI(
         apiKey,
         model,
@@ -402,7 +412,7 @@ Do not include any text before or after the JSON object.`;
       );
 
       const parsed = JSON.parse(response);
-      
+
       if (parsed.test === true) {
         return { healthy: true, message: "OpenAI API connection successful" };
       } else {
